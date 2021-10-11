@@ -36,11 +36,11 @@ textInput("Code1", "Contract Price Units", value = "(mu/cu)"),
 
 menuItem("Trading Inputs & Filters", tabName = "dashboard2", icon = icon("dashboard")),
 
-numericInput("Number1", "Buy (Days before expiration)", value = 40,
-             min = 1, max = 60, step = 1),
+numericInput("Number1", "Buy (Days after roll)", value = 0,
+             min = 0, max = 60, step = 1),
 
-numericInput("Number2", "Sell (Days before expiration)", value = 30,
-             min = 1, max = 60, step = 1),
+numericInput("Number2", "Sell (Days before roll)", value = 0,
+             min = 0, max = 60, step = 1),
 
 actionButton("RunCode", "Update")
 
@@ -57,6 +57,24 @@ tabItem(tabName = "dashboard",
     
 tabsetPanel(
  
+ tabPanel("Trading Results", 
+ fluidRow(box(title="Life of Contracts Returns Boxplot", solidHeader = TRUE, 
+ status="primary", width=12, plotlyOutput("graph4a"))
+),
+          
+ fluidRow(box(title="Life of Contracts Returns", solidHeader = TRUE, 
+ status="primary", width=12, DTOutput("table6"))
+),
+          
+                    
+ fluidRow(
+            
+downloadButton('download6', 'Download data')  
+            
+)    
+          
+ ),
+  
  tabPanel("JB Normal Test", 
           
  fluidRow(box(title="Split Contracts Returns Density", solidHeader = TRUE, 

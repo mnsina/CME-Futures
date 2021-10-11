@@ -305,7 +305,6 @@ db_4<-reactive({
 })
 
 
-
 #13) Tabular Test JB
 
 output$table5<-renderDT({
@@ -325,6 +324,63 @@ output$download5 <- downloadHandler(
     write.csv(db_4(), file)
   }
 )
- 
+
+
+#14) Tabular retornos contratos
+
+db_5<-reactive({
+  
+  req(input$file1)
+  
+  aux5<-db_3()[, c("Index1", "Index2"):=.(1:.N-1, .N:1-1), by = .(ContractName)]
+  aux5<-aux5[Index1==input$Number1 | Index2==input$Number2]
+  
+  aux5<-aux5[, ContractNameLag1:=shift(ContractName, 1, type="lag")]
+  aux5<-aux5[, ContractReturn:=ifelse(ContractNameLag1==ContractName, Close/shift(Close, 1, type="lag")-1, NA)]
+  
+})
+
+
+output$table6<-renderDT({
+  
+  req(input$file1)
+  
+  datatable(db_5()[,c(1:8,15)], filter="top")  %>% formatPercentage("ContractReturn", 1)
+  
+})
+
+
+output$download6 <- downloadHandler(
+  filename = function() {
+    paste("Files", ".csv", sep="")
+  },
+  content = function(file) {
+    write.csv(db_5()[,c(1:8,15)], file)
+  }
+)
+
+
+#15) Graficar Retorno contratos
+
+output$graph4a<-renderPlotly({
+  
+  req(input$file1)
+  
+  db_5()[!is.na(ContractReturn),]
+  
+  ggplotly(
+    ggplot(data=db_5(), aes(x=Contract, y=ContractReturn, color=Contract,
+                            group=ContractName))
+    +geom_boxplot(outlier.colour = "red")
+    +theme(legend.position = "none")
+    +xlab("Contract")+ylab("Daily Log Returns")
+    +scale_y_continuous(breaks = seq(from=-0.1, to=0.1, by=0.02), limits = c(-0.1, 0.1))
+    +theme_classic()
+    #+theme_minimal()
+    
+  )
+  
+})
+
  
 } 

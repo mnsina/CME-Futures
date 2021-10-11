@@ -13,12 +13,12 @@ library(TSA)
 
 library(pdftools)
 library(tm)
-library(git2r)
+#library(git2r)
 
 #1) Definir directorio
 
 #setwd("C:/Users/wzm03j/Desktop/AppGM2")
-
+#tokem: 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
 
 #2) Tabular documentos seleccionados
 

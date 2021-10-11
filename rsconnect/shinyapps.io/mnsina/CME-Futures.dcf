@@ -1,0 +1,13 @@
+name: CME-Futures
+title: CME-Futures
+username:
+account: mnsina
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4848541
+bundleId: 5128693
+url: https://mnsina.shinyapps.io/CME-Futures/
+when: 1633994446.21365
+lastSyncTime: 1633994446.21367
+asMultiple: FALSE
+asStatic: FALSE

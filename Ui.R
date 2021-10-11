@@ -13,7 +13,7 @@ library(TSA)
 
 library(pdftools)
 library(tm)
-library(git2r)
+#library(git2r)
 
 dashboardPage(
 dashboardHeader(title = "Futures Contracts CME"  #,tags$li(div(img(src = 'chevy.jpg',

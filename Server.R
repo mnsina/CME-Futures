@@ -17,7 +17,7 @@ library(git2r)
 
 #1) Definir directorio
 
-setwd("C:/Users/wzm03j/Desktop/AppGM2")
+#setwd("C:/Users/wzm03j/Desktop/AppGM2")
 
 
 #2) Tabular documentos seleccionados

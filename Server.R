@@ -13,17 +13,80 @@ library(TSA)
 
 library(pdftools)
 library(tm)
-#library(git2r)
+library(git2r)
+
 
 #1) Definir directorio
 
-#setwd("C:/Users/wzm03j/Desktop/AppGM2")
-#tokem: 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
+setwd("C:/Users/wzm03j/Desktop/AppGM2")
+
 
 #2) Tabular documentos seleccionados
 
-function(input, output) {
+function(input, output, session) {
 
+  observeEvent(input$Btn1, {shinyjs::alert("Please use: user1 | pass1")})
+  
+  user_base <- data.table(
+    user = c("user1", "user2", "user3", "user4"),
+    password = c("pass1", "pass2", "pass3", "pass4"),
+    permissions = c("admin", "standard", "standard", "standard"),
+    name = c("User One", "User Two", "User Three", "User Four")
+  )
+  
+  logout_init <- shinyauthr::logoutServer(
+                 id = "logout", 
+                reactive(credentials()$user_auth))
+  
+  
+  credentials <- shinyauthr::loginServer(
+    id = "login",
+    data = user_base,
+    user_col = user,
+    pwd_col = password,
+    log_out = reactive(logout_init())
+  )  
+
+
+  observe({
+    if (credentials()$user_auth) {
+      shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
+      shinyjs::show("file1")
+      shinyjs::show("dates1")
+      shinyjs::show("Code1")
+      shinyjs::show("Number1")
+      shinyjs::show("Number2")
+    } else {
+      shinyjs::addClass(selector = "body", class = "sidebar-collapse")
+      shinyjs::hide("file1")
+      shinyjs::hide("dates1")
+      shinyjs::hide("Code1")
+      shinyjs::hide("Number1")
+      shinyjs::hide("Number2")
+    }
+  })
+
+  observe({
+    if (credentials()$user_auth) {
+      removeTab("tabs", "login")
+      showTab("tabs", "Trading Results")
+      showTab("tabs", "JB Normal Test")
+      showTab("tabs", "Log Returns")
+      showTab("tabs", "Continous Base")
+      showTab("tabs", "Data")
+      showTab("tabs", "Files")
+      dashboardSidebar(disable = FALSE)
+    } else {
+      hideTab("tabs", "Trading Results")
+      hideTab("tabs", "JB Normal Test")
+      hideTab("tabs", "Log Returns")
+      hideTab("tabs", "Continous Base")
+      hideTab("tabs", "Data")
+      hideTab("tabs", "Files")
+      dashboardSidebar(disable = TRUE)
+    }
+  })
+    
   
 file1_data<-reactive({
     
@@ -102,8 +165,9 @@ output$download2 <- downloadHandler(
 db_2<-reactive({
   
  req(input$file1)
- db_aux2<-db_1()[,.SD[which.max(Volume)], by=Date]
  
+ db_aux2<-db_1()[,.SD[which.max(Volume)], by=Date]
+ db_aux2<-db_aux2[order(Date)]
  
  db_aux0<-db_1()
  
@@ -117,19 +181,39 @@ db_2<-reactive({
  db_aux2<-db_aux2[, ContractName_x:=ifelse(ContractNameLag1!=ContractNameLead1 | is.na(ContractNameLag1)| is.na(ContractNameLead1), ContractName, ContractNameLead1)]
  db_aux2<-db_aux2[, ContractName:=ContractName_x]
  db_aux2<-db_aux2[, ContractName_x:=NULL]
-
+ db_aux2<-db_aux2[order(Date)]
+ 
+ }
+   if(j==10){
+   
+ db_aux2<-db_aux2[, ContractNameLag1:=shift(ContractName, 1, type="lag")] 
+ db_aux2<-db_aux2[, ContractNameLead1:=shift(ContractName, 1, type="lead")]
+     
+ db_aux2<-db_aux2[, ContractName_x:=ifelse(ContractNameLag1!=ContractName & ContractNameLead1!=ContractName, ContractNameLead1, ContractName)]
+ db_aux2<-db_aux2[, ContractName:=ContractName_x]
+ db_aux2<-db_aux2[, ContractName_x:=NULL]
+ db_aux2<-db_aux2[order(Date)]
+       
  }
  }
+ 
+ db_aux2b<-db_aux2[,.SD[which.min(Date)], by=ContractName]
+ db_aux2b<-db_aux2b[order(Date), ContractName_x:=shift(ContractName, 1, type="lag")]
+ db_aux2b<-db_aux2b[, ContractName:=ContractName_x]
+ db_aux2b<-db_aux2b[, ContractName_x:=NULL]
+ db_aux2b<-db_aux2b[,.SD[which.max(Date)], by=ContractName]
+ db_aux2b<-db_aux2b[2:.N]
+ db_aux2<-rbindlist(list(db_aux2, db_aux2b), use.names = TRUE)
  
  
  db_aux2<-db_aux0[db_aux2, on=.(ContractName, Date)]
  db_aux2<-db_aux2[, c(1, 2, 3:8)]
  
  colnames(db_aux2)<-c("ContractName", "Date", "Open", "High", "Low", "Close", "Volume", "Interest")
- db_aux2<-db_aux2[,Contract:=paste(substr(ContractName,1,2), substr(ContractName,nchar(ContractName),nchar(ContractName)), sep="_")]
+ db_aux2<-db_aux2[order(Date), Contract:=paste(substr(ContractName,1,2), substr(ContractName,nchar(ContractName),nchar(ContractName)), sep="_")]
  
  
- db_aux2
+ na.omit(db_aux2[order(ContractName)])
  
 })
 
@@ -234,7 +318,7 @@ output$graph3a<-renderPlotly({
   ggplotly(
     ggplot(data=db_3(), aes(x=Contract, y=LogReturnLag1, color=Contract,
                             group=ContractName))
-    +geom_boxplot(outlier.colour = "red")
+    +geom_boxplot(outlier.shape = NA)
     +theme(legend.position = "none")
     +xlab("Contract")+ylab("Daily Log Returns")
     +scale_y_continuous(breaks = seq(from=-0.1, to=0.1, by=0.02), limits = c(-0.1, 0.1))
@@ -332,9 +416,9 @@ db_5<-reactive({
   
   req(input$file1)
   
-  aux5<-db_3()[, c("Index1", "Index2"):=.(1:.N-1, .N:1-1), by = .(ContractName)]
-  aux5<-aux5[Index1==input$Number1 | Index2==input$Number2]
-  
+  aux5<-db_3()[order(Date), c("Index1", "Index2"):=.(1:.N, .N:1), by = .(ContractName)]
+  aux5<-aux5[Index1==input$Number1+1 | Index2==input$Number2+1]
+  aux5<-aux5[order(Date)]
   aux5<-aux5[, ContractNameLag1:=shift(ContractName, 1, type="lag")]
   aux5<-aux5[, ContractReturn:=ifelse(ContractNameLag1==ContractName, Close/shift(Close, 1, type="lag")-1, NA)]
   
@@ -371,7 +455,7 @@ output$graph4a<-renderPlotly({
   ggplotly(
     ggplot(data=db_5(), aes(x=Contract, y=ContractReturn, color=Contract,
                             group=ContractName))
-    +geom_boxplot(outlier.colour = "red")
+    +geom_boxplot(outlier.shape = NA)
     +theme(legend.position = "none")
     +xlab("Contract")+ylab("Daily Log Returns")
     +scale_y_continuous(breaks = seq(from=-0.1, to=0.1, by=0.02), limits = c(-0.1, 0.1))

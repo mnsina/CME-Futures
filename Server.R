@@ -17,6 +17,7 @@ library(git2r)
 library(shinyauthr)
 library(rdrop2)
 
+#token git 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
 
 #1) Definir directorio
 

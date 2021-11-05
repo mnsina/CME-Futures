@@ -5,9 +5,9 @@ account: mnsina
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4848541
-bundleId: 5128693
+bundleId: 5215391
 url: https://mnsina.shinyapps.io/CME-Futures/
-when: 1633994446.21365
-lastSyncTime: 1633994446.21367
+when: 1636079768.87876
+lastSyncTime: 1636079768.87879
 asMultiple: FALSE
 asStatic: FALSE

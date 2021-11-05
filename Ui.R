@@ -60,6 +60,12 @@ Sidebar <- dashboardSidebar(
           convertMenuItem2(
           menuItem("User Database", tabName = "dashboard2", icon = icon("user", lib = "glyphicon"),
           
+          textInput("User1", "Please enter email", value = ""),
+          
+          textInput("Pass1", "Please enter password", value = ""),
+          
+          textInput("Pass2", "Please repeat password", value = ""),
+         
           actionButton("Btn1", "Register")),tabName = "dashboard2")
     
 )
@@ -118,10 +124,18 @@ Tab_6 <- tabPanel("Files", fluidRow(box(title="Uploaded Files", solidHeader = TR
          fluidRow(downloadButton('download1', 'Download data')))
 
 
+Tab_7 <- tabPanel("Users", fluidRow(box(title="Users Database", solidHeader = TRUE, 
+         status="primary", width=12, DTOutput("tableUsers"))),
+         fluidRow(downloadButton('download7', 'Download data')))
+
+
 #3.2) Tabset panel1
+
 
 Tabsetpanel1 <- tabsetPanel(id="tabs", Tab_1, Tab_2, Tab_3,
                 Tab_4, Tab_5, Tab_6)
+
+Tabsetpanel2 <- tabsetPanel(id="tabs2", Tab_7)
 
 
 #3.3) Body Dashboard
@@ -129,7 +143,7 @@ Tabsetpanel1 <- tabsetPanel(id="tabs", Tab_1, Tab_2, Tab_3,
 Body <- dashboardBody(shinyauthr::loginUI("login"),
        tabItems(
        tabItem(tabName = "dashboard", Tabsetpanel1), 
-       tabItem(tabName = "dashboard2")
+       tabItem(tabName = "dashboard2", Tabsetpanel2)
         ))
 
 

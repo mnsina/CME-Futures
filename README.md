@@ -1,5 +1,5 @@
 # CME- Commodity Futures
-This app was developed to analyse commodity futures prices by creating a continous curve based on the most actively traded contracts.The continous curve contains the real settlement price of each contract (not forward/backward adjustments) but their return are calculated taking into account the roll date. 
+This app was developed to analyse commodity futures prices by creating a continous curve based on the most actively traded contracts.The continous curve shows the real settlement prices of each contract (not forward/backward adjustments), but daily returns are calculated taking into account their roll date. 
 
 To login to the app please register in the sidebar panel or use:
 - User: user1@uc.cl

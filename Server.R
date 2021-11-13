@@ -24,7 +24,7 @@ library(rdrop2)
 
 drop_auth(rdstoken = "token.rds")
 
-#token git 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
+#token git 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
 
 
 function(input, output, session) {

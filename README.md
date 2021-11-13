@@ -1,7 +1,9 @@
 # CME- Commodity Futures
-#### This app helps to analyse commodity futures prices by automatically creating a continous curve based on the most actively traded contract each day. To login to the app please register in the sidebar panel or use:
-#### User: user1@uc.cl
-#### Password: 123
+This app was developed to analyse commodity futures prices by creating a continous curve based on the most actively traded contracts.The continous curve contains the real settlement price of each contract (not forward/backward adjustments) but their return are calculated taking into account the roll date. 
+
+To login to the app please register in the sidebar panel or use:
+- User: user1@uc.cl
+- Password: 123
 ## Link to R-Shiny App:
 [Shiny](https://mnsina.shinyapps.io/CME-Futures/?_ga=2.101551046.672405092.1636080722-1773262265.1633993439)
 ## Link to Sample Data (CME):

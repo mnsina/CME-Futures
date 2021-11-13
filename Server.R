@@ -13,29 +13,94 @@ library(TSA)
 
 library(pdftools)
 library(tm)
-library(git2r)
+#library(git2r)
 library(shinyauthr)
 library(rdrop2)
 
+
+#1) Cargar token conectar dropbox
+
+#token git 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
+
+drop_auth(rdstoken = "token.rds")
+
 #token git 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
 
-#1) Definir directorio
-
-#setwd("C:/Users/wzm03j/Desktop/AppGM2")
-
-
-#2) Tabular documentos seleccionados
 
 function(input, output, session) {
 
-  observeEvent(input$Btn1, {shinyjs::alert("Please use: user1 | pass1")})
   
-  user_base <- data.table(
-    user = c("user1", "user2", "user3", "user4"),
-    password = c("pass1", "pass2", "pass3", "pass4"),
-    permissions = c("admin", "standard", "standard", "standard"),
-    name = c("User One", "User Two", "User Three", "User Four")
+#2) Tabular usuarios dropbox
+  
+  users_db<-reactive({
+    
+    users_db<-drop_dir(path = "/USERS_DB")
+    users_db<-data.table(users_db$name)
+    setnames(users_db, old="V1", new = "name", skip_absent=TRUE)
+    users_db<-users_db[, name:=gsub(pattern = ".csv", replacement = "", name)]
+    users_db<-users_db[, user:=substr(name, 7, nchar(name))]
+    pass0<-data.table(as.numeric(gregexpr(pattern = " - Pass:", users_db$user)))
+    setnames(pass0, old="V1", new = "pass0", skip_absent=TRUE)
+    users_db<-cbind(users_db, pass0)
+    users_db<-users_db[, user:=substr(user, 1, pass0-1)]
+    users_db<-users_db[, user:=gsub(pattern = " ", replacement = "", user)]
+    users_db<-users_db[, password:=substr(name, pass0+6+9-1, nchar(name))]
+    users_db<-users_db[, password:=gsub(pattern = " ", replacement = "", password)]
+    users_db<-users_db[, pass0:=NULL]
+    users_db<-users_db[, name:=NULL]
+    #users_db<-rbindlist(lapply(users_db, fread))
+    
+    })
+  
+  output$tableUsers<-renderDT({
+    
+  users_db()
+    
+  }, filter="top")  
+  
+  
+#3) Registrar usuario y validaciones básicas
+  
+  observeEvent(input$Btn1, if(input$Pass1!=input$Pass2) {
+  
+  shinyjs::alert("Passwords don`t match") } else {
+  
+  if(input$User1 %in% users_db2$user) { shinyjs::alert("User already exists") } 
+    
+  else { if(grepl("@", input$User1, fixed=TRUE)==FALSE ) { 
+  shinyjs::alert("Please enter an email address") } else {
+    
+  {new_user<-data.table(user=input$User1, password=input$Pass1, permissions="standard", 
+          name=input$User1)
+  
+  fwrite(new_user, paste0("User: ", input$User1, " - Pass: ", input$Pass1, ".csv"))
+  
+  drop_upload(paste0("User: ", input$User1, " - Pass: ", input$Pass1, ".csv"), path = "/USERS_DB")
+  
+  shinyjs::alert("The user was successfully created")
+  session$reload()
+  }
+  }}}
   )
+  
+  
+#4) Login app
+  
+  users_db2<-drop_dir(path = "/USERS_DB")
+  users_db2<-data.table(users_db2$name)
+  setnames(users_db2, old="V1", new = "name", skip_absent=TRUE)
+  users_db2<-users_db2[, name:=gsub(pattern = ".csv", replacement = "", name)]
+  users_db2<-users_db2[, user:=substr(name, 7, nchar(name))]
+  pass1<-data.table(as.numeric(gregexpr(pattern = " - Pass:", users_db2$user)))
+  setnames(pass1, old="V1", new = "pass1", skip_absent=TRUE)
+  users_db2<-cbind(users_db2, pass1)
+  users_db2<-users_db2[, user:=substr(user, 1, pass1-1)]
+  users_db2<-users_db2[, user:=gsub(pattern = " ", replacement = "", user)]
+  users_db2<-users_db2[, password:=substr(name, pass1+6+9-1, nchar(name))]
+  users_db2<-users_db2[, password:=gsub(pattern = " ", replacement = "", password)]
+  users_db2<-users_db2[, pass1:=NULL]
+  users_db2<-users_db2[, name:=NULL]
+  
   
   logout_init <- shinyauthr::logoutServer(
                  id = "logout", 
@@ -44,11 +109,11 @@ function(input, output, session) {
   
   credentials <- shinyauthr::loginServer(
     id = "login",
-    data = user_base,
+    data = users_db2,
     user_col = user,
     pwd_col = password,
     log_out = reactive(logout_init())
-  )  
+  )
 
 
   observe({
@@ -78,6 +143,7 @@ function(input, output, session) {
       showTab("tabs", "Continous Base")
       showTab("tabs", "Data")
       showTab("tabs", "Files")
+      showTab("tabs2", "Users")
       dashboardSidebar(disable = FALSE)
     } else {
       hideTab("tabs", "Trading Results")
@@ -86,6 +152,7 @@ function(input, output, session) {
       hideTab("tabs", "Continous Base")
       hideTab("tabs", "Data")
       hideTab("tabs", "Files")
+      hideTab("tabs2", "Users")
       dashboardSidebar(disable = TRUE)
     }
   })
@@ -114,7 +181,8 @@ output$download1 <- downloadHandler(
   }
 )
 
-#3) Consolidar contratos 
+
+#6) Consolidar contratos 
 
 db_1<-reactive({
   

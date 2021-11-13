@@ -13,7 +13,7 @@ library(TSA)
 
 library(pdftools)
 library(tm)
-library(git2r)
+#library(git2r)
 library(shinyauthr)
 library(rdrop2)
 

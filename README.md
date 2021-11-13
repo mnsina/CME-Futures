@@ -8,3 +8,5 @@
 [Platinum](https://www.dropbox.com/sh/5e1ob11okdgz92n/AABy9KXik3UrGpSy2Ufp_1k4a?dl=0)
 [Palladium](https://www.dropbox.com/sh/bpfwa7uustap124/AADHSTrEC_cktJsa7LpkiBOta?dl=0)
 [Orange Juice](https://www.dropbox.com/sh/kqcrjbg40h2tb6k/AABZ86KPYDVnP-PZFSlWTtjQa?dl=0)
+## Contact Info:
+#### mnsina@uc.cl

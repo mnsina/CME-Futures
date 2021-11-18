@@ -38,25 +38,36 @@ function(input, output, session) {
     users_db<-data.table(users_db$name)
     setnames(users_db, old="V1", new = "name", skip_absent=TRUE)
     users_db<-users_db[, name:=gsub(pattern = ".csv", replacement = "", name)]
-    users_db<-users_db[, user:=substr(name, 7, nchar(name))]
-    pass0<-data.table(as.numeric(gregexpr(pattern = " - Pass:", users_db$user)))
+    users_db<-users_db[, Users:=substr(name, 7, nchar(name))]
+    pass0<-data.table(as.numeric(gregexpr(pattern = " - Pass:", users_db$Users)))
     setnames(pass0, old="V1", new = "pass0", skip_absent=TRUE)
     users_db<-cbind(users_db, pass0)
-    users_db<-users_db[, user:=substr(user, 1, pass0-1)]
-    users_db<-users_db[, user:=gsub(pattern = " ", replacement = "", user)]
-    users_db<-users_db[, password:=substr(name, pass0+6+9-1, nchar(name))]
-    users_db<-users_db[, password:=gsub(pattern = " ", replacement = "", password)]
+    users_db<-users_db[, Users:=substr(Users, 1, pass0-1)]
+    users_db<-users_db[, Users:=gsub(pattern = " ", replacement = "", Users)]
+    users_db<-users_db[, Passwords:=substr(name, pass0+6+9-1, nchar(name))]
+    users_db<-users_db[, Passwords:=gsub(pattern = " ", replacement = "", Passwords)]
     users_db<-users_db[, pass0:=NULL]
     users_db<-users_db[, name:=NULL]
     #users_db<-rbindlist(lapply(users_db, fread))
     
     })
+
   
   output$tableUsers<-renderDT({
     
   users_db()
     
   }, filter="top")  
+
+    
+  output$download0 <- downloadHandler(
+    filename = function() {
+      paste("Files", ".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(users_db(), file)
+    }
+  )
   
   
 #3) Registrar usuario y validaciones básicas
@@ -143,9 +154,12 @@ function(input, output, session) {
       showTab("tabs", "Continous Base")
       showTab("tabs", "Data")
       showTab("tabs", "Files")
-      showTab("tabs2", "Users")
+      admin<-credentials()$info$user
+      if (admin=="mnsina@uc.cl"){
+        showTab("tabs2", "Users")}
       dashboardSidebar(disable = FALSE)
-    } else {
+      } 
+      else {
       hideTab("tabs", "Trading Results")
       hideTab("tabs", "JB Normal Test")
       hideTab("tabs", "Log Returns")
@@ -156,8 +170,8 @@ function(input, output, session) {
       dashboardSidebar(disable = TRUE)
     }
   })
-    
-  
+
+        
 file1_data<-reactive({
     
  req(input$file1)

@@ -126,7 +126,7 @@ Tab_6 <- tabPanel("Files", fluidRow(box(title="Uploaded Files", solidHeader = TR
 
 Tab_7 <- tabPanel("Users", fluidRow(box(title="Users Database", solidHeader = TRUE, 
          status="primary", width=12, DTOutput("tableUsers"))),
-         fluidRow(downloadButton('download7', 'Download data')))
+         fluidRow(downloadButton('download0', 'Download data')))
 
 
 #3.2) Tabset panel1

@@ -5,9 +5,10 @@ account: mnsina
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4848541
-bundleId: 5215391
+bundleId: 5246620
 url: https://mnsina.shinyapps.io/CME-Futures/
-when: 1636079768.87876
-lastSyncTime: 1636079768.87879
+when: 1636777940.83951
+lastSyncTime: 1636777940.83953
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: User: matias - Pass: 1234.csv|User: user1 - Pass: pass1.csv
